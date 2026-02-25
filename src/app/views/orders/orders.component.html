@@ -1,0 +1,56 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Orders</strong>
+          <small class="text-body-secondary"> Active Orders </small>
+        </div>
+        <button cButton color="primary" variant="outline" (click)="loadOrders()">Refresh</button>
+      </c-card-header>
+      <c-card-body>
+        @if (loading) {
+          <div class="d-flex align-items-center gap-2">
+            <c-spinner aria-label="loading"></c-spinner>
+            <span>Loading orders...</span>
+          </div>
+        }
+
+        @if (!loading && errorMessage) {
+          <c-alert color="danger">{{ errorMessage }}</c-alert>
+        }
+
+        @if (!loading && !errorMessage && orders.length === 0) {
+          <c-alert color="info">No active orders found.</c-alert>
+        }
+
+        @if (!loading && !errorMessage && orders.length > 0) {
+          <table cTable [striped]="true" [hover]="true" responsive>
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of orders; track order.id) {
+                <tr>
+                  <td>{{ order.orderNumber || order.id }}</td>
+                  <td>
+                    <c-badge [color]="statusBadgeColor(order.orderStatus)">
+                      {{ order.orderStatus || 'unknown' }}
+                    </c-badge>
+                  </td>
+                  <td>{{ order.totalAmount ?? 0 | number: '1.2-2' }}</td>
+                  <td>{{ order.createdAt | date: 'medium' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>

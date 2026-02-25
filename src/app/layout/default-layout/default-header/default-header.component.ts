@@ -23,6 +23,7 @@ import {
 } from '@coreui/angular';
 
 import { IconDirective } from '@coreui/icons-angular';
+import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
 @Component({
   selector: 'app-default-header',
@@ -44,6 +45,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
     const currentMode = this.colorMode();
     return this.colorModes.find(mode => mode.name === currentMode)?.icon ?? 'cilSun';
   });
+  readonly #authSessionService = inject(AuthSessionService);
 
   constructor() {
     super();
@@ -125,5 +127,9 @@ export class DefaultHeaderComponent extends HeaderComponent {
     { id: 3, title: 'Add new layouts', value: 75, color: 'info' },
     { id: 4, title: 'Angular Version', value: 100, color: 'success' }
   ];
+
+  logout(): void {
+    this.#authSessionService.logout(true).subscribe();
+  }
 
 }

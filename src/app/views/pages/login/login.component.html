@@ -5,14 +5,17 @@
         <c-card-group>
           <c-card class="p-4">
             <c-card-body>
-              <form cForm>
+              <form cForm [formGroup]="form" (ngSubmit)="submit()">
                 <h1>Login</h1>
                 <p class="text-body-secondary">Sign In to your account</p>
+                @if (errorMessage) {
+                  <c-alert color="danger">{{ errorMessage }}</c-alert>
+                }
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
                     <svg cIcon name="cilUser"></svg>
                   </span>
-                  <input autoComplete="username" cFormControl placeholder="Username" />
+                  <input autoComplete="username" cFormControl placeholder="Email" type="email" formControlName="email" />
                 </c-input-group>
                 <c-input-group class="mb-4">
                   <span cInputGroupText>
@@ -23,16 +26,17 @@
                     cFormControl
                     placeholder="Password"
                     type="password"
+                    formControlName="password"
                   />
                 </c-input-group>
                 <c-row>
                   <c-col xs="6">
-                    <button cButton class="px-4" color="primary">
-                      Login
+                    <button cButton class="px-4" color="primary" type="submit" [disabled]="submitting">
+                      {{ submitting ? 'Signing in...' : 'Login' }}
                     </button>
                   </c-col>
                   <c-col class="text-end" xs="6">
-                    <button cButton class="px-0" color="link">
+                    <button cButton class="px-0" color="link" type="button">
                       Forgot password?
                     </button>
                   </c-col>

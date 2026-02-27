@@ -1,0 +1,1 @@
+dotnet user-secrets --project RestaurantSystem.WebAPI set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=restaurant_db;Username=postgres;Password=google9008;SSL Mode=Disable"

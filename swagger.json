@@ -13448,8 +13448,7 @@
             "nullable": true
           },
           "role": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/UserRole"
           }
         },
         "additionalProperties": false
@@ -15282,8 +15281,7 @@
         "type": "object",
         "properties": {
           "role": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/UserRole"
           }
         },
         "additionalProperties": false
@@ -15317,6 +15315,17 @@
           }
         },
         "additionalProperties": false
+      },
+      "UserRole": {
+        "enum": [
+          "customer",
+          "staff",
+          "chef",
+          "manager",
+          "admin",
+          "delivery"
+        ],
+        "type": "string"
       },
       "ValidateTokenQuery": {
         "type": "object",

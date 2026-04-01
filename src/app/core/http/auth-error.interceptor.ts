@@ -15,13 +15,17 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
       const isUnauthorized = httpError.status === 401;
       const isApiRequest = req.url.includes('/api/');
       const alreadyRetried = req.context.get(HAS_REFRESH_RETRY);
-      const isAuthEndpoint = req.url.includes('/api/Auth/login') || req.url.includes('/api/Auth/refresh');
+      const isAuthEndpoint =
+        req.url.includes('/api/Auth/login') ||
+        req.url.includes('/api/Auth/refresh') ||
+        req.url.includes('/api/Auth/logout') ||
+        req.url.includes('/api/Auth/validate-token');
 
       if (!isUnauthorized || !isApiRequest || alreadyRetried || isAuthEndpoint) {
         return throwError(() => error);
       }
 
-      return authSession.refreshToken().pipe(
+      return authSession.refreshTokenShared().pipe(
         switchMap(() =>
           next(
             req.clone({
@@ -29,11 +33,11 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
             })
           )
         ),
-        catchError((refreshError) => {
-          return authSession.logout(true).pipe(
+        catchError((refreshError) =>
+          authSession.logout(true).pipe(
             switchMap(() => throwError(() => refreshError))
-          );
-        })
+          )
+        )
       );
     })
   );

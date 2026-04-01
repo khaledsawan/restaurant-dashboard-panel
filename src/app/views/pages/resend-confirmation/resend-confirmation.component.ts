@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize, take } from 'rxjs';
-import { IconDirective } from '@coreui/icons-angular';
+
 import {
   AlertComponent,
   ButtonDirective,
@@ -19,16 +19,27 @@ import {
 import { AuthFacade } from '../../../core/auth/auth.facade';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  imports: [ContainerComponent, RowComponent, ColComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, ReactiveFormsModule, AlertComponent, RouterLink]
+  selector: 'app-resend-confirmation',
+  templateUrl: './resend-confirmation.component.html',
+  imports: [
+    ContainerComponent,
+    RowComponent,
+    ColComponent,
+    CardComponent,
+    CardBodyComponent,
+    FormDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    FormControlDirective,
+    ButtonDirective,
+    ReactiveFormsModule,
+    AlertComponent,
+    RouterLink
+  ]
 })
-export class RegisterComponent {
+export class ResendConfirmationComponent {
   readonly form = this.fb.group({
-    firstName: this.fb.control(''),
-    lastName: this.fb.control(''),
-    email: this.fb.control('', { validators: [Validators.required, Validators.email] }),
-    password: this.fb.control('', { validators: [Validators.required, Validators.minLength(6)] })
+    email: this.fb.control('', { validators: [Validators.required, Validators.email] })
   });
 
   submitting = false;
@@ -52,20 +63,20 @@ export class RegisterComponent {
     this.successMessage = '';
 
     this.authFacade
-      .register(this.form.getRawValue())
+      .resendConfirmation(this.form.getRawValue())
       .pipe(
         take(1),
         finalize(() => (this.submitting = false))
       )
       .subscribe({
         next: () => {
-          this.successMessage = 'Registration successful. Please log in.';
+          this.successMessage = 'If the email exists, a confirmation email has been sent.';
           setTimeout(() => {
-            void this.router.navigate(['/login']);
+            void this.router.navigate(['/confirm-email'], { queryParams: { email: this.form.value.email } });
           }, 800);
         },
         error: (error: { error?: { detail?: string; title?: string } }) => {
-          this.errorMessage = error.error?.detail || error.error?.title || 'Registration failed.';
+          this.errorMessage = error.error?.detail || error.error?.title || 'Request failed.';
         }
       });
   }

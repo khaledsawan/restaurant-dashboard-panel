@@ -1,0 +1,21 @@
+<c-row>
+  <c-col md="8" lg="6">
+    <c-card class="mb-4 border-danger">
+      <c-card-header>
+        <strong>Delete Account</strong>
+      </c-card-header>
+      <c-card-body>
+        @if (errorMessage) {
+          <c-alert color="danger">{{ errorMessage }}</c-alert>
+        }
+        @if (successMessage) {
+          <c-alert color="success">{{ successMessage }}</c-alert>
+        }
+        <p class="mb-3">This action is permanent and cannot be undone.</p>
+        <button cButton color="danger" (click)="deleteAccount()" [disabled]="submitting">
+          {{ submitting ? 'Deleting...' : 'Delete Account' }}
+        </button>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>

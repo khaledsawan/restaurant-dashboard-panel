@@ -1,58 +1,47 @@
 import { Injectable, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { catchError, finalize, map, Observable, of, shareReplay, switchMap } from 'rxjs';
 
-import { AuthService, AuthResult, LoginCommand } from '../../shared/service-proxies';
-import { API_VERSION } from '../config/api.config';
+import { AuthResult, LoginCommand } from '../../shared/service-proxies';
 import { AuthState } from './auth-state.model';
-
-const AUTH_STORAGE_KEY = 'restaurant-admin.auth';
+import { AuthFacade } from './auth.facade';
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   readonly authState = signal<AuthState | null>(null);
+  private refreshInFlight$?: Observable<AuthState>;
 
   constructor(
     private readonly injector: Injector,
-    private readonly router: Router
+    private readonly router: Router,
   ) {
-    this.restoreSession();
   }
 
   login(credentials: LoginCommand): Observable<AuthState> {
-    return this.getAuthService().apiAuthLoginPost(API_VERSION, credentials).pipe(
+    return this.getAuthFacade().login(credentials).pipe(
       map((result) => this.mapAuthResult(result)),
       map((state) => {
         this.setAuthState(state);
         return state;
-      })
+      }),
     );
   }
 
   refreshToken(): Observable<AuthState> {
-    const refreshToken = this.authState()?.refreshToken;
-    if (!refreshToken) {
-      return throwError(() => new Error('Refresh token not found'));
-    }
-
-    return this.getAuthService().apiAuthRefreshPost(API_VERSION, { refreshToken }).pipe(
+    return this.getAuthFacade().refresh().pipe(
       map((result) => this.mapAuthResult(result)),
       map((state) => {
         this.setAuthState(state);
         return state;
-      })
+      }),
     );
   }
 
   logout(navigate = true): Observable<void> {
-    const refreshToken = this.authState()?.refreshToken;
-
-    const request$ = refreshToken
-      ? this.getAuthService().apiAuthLogoutPost(API_VERSION, { refreshToken }).pipe(
-          map(() => undefined),
-          catchError(() => of(undefined))
-        )
-      : of(undefined);
+    const request$ = this.getAuthFacade().logout().pipe(
+      map(() => undefined),
+      catchError(() => of(undefined)),
+    );
 
     return request$.pipe(
       switchMap(() => {
@@ -61,7 +50,7 @@ export class AuthSessionService {
           void this.router.navigate(['/login']);
         }
         return of(undefined);
-      })
+      }),
     );
   }
 
@@ -78,25 +67,8 @@ export class AuthSessionService {
     return this.authState()?.accessToken ?? null;
   }
 
-  private restoreSession(): void {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as AuthState;
-      this.authState.set(parsed);
-      if (!this.isAuthenticated()) {
-        this.clearAuthState();
-      }
-    } catch {
-      this.clearAuthState();
-    }
-  }
-
   private mapAuthResult(result: AuthResult): AuthState {
-    if (!result.accessToken || !result.refreshToken || !result.expiresAt) {
+    if (!result.accessToken || !result.expiresAt) {
       throw new Error('Auth response is missing required token fields');
     }
 
@@ -104,23 +76,33 @@ export class AuthSessionService {
       userId: result.userId,
       email: result.email,
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
       expiresAt: result.expiresAt,
-      roles: result.roles
+      roles: result.roles,
     };
   }
 
   private setAuthState(state: AuthState): void {
     this.authState.set(state);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state));
   }
 
   private clearAuthState(): void {
     this.authState.set(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
   }
 
-  private getAuthService(): AuthService {
-    return this.injector.get(AuthService);
+  private getAuthFacade(): AuthFacade {
+    return this.injector.get(AuthFacade);
+  }
+
+  refreshTokenShared(): Observable<AuthState> {
+    if (!this.refreshInFlight$) {
+      this.refreshInFlight$ = this.refreshToken().pipe(
+        shareReplay(1),
+        finalize(() => {
+          this.refreshInFlight$ = undefined;
+        }),
+      );
+    }
+
+    return this.refreshInFlight$;
   }
 }

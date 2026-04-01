@@ -57,6 +57,14 @@ export const routes: Routes = [
         loadChildren: () => import('./views/orders/routes').then((m) => m.routes)
       },
       {
+        path: 'admin-users',
+        loadChildren: () => import('./views/admin-users/routes').then((m) => m.routes)
+      },
+      {
+        path: 'account',
+        loadChildren: () => import('./views/account/routes').then((m) => m.routes)
+      },
+      {
         path: 'pages',
         loadChildren: () => import('./views/pages/routes').then((m) => m.routes)
       }
@@ -90,6 +98,38 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     data: {
       title: 'Register Page'
+    }
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./views/pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    canActivate: [guestGuard],
+    data: {
+      title: 'Forgot Password'
+    }
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./views/pages/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+    canActivate: [guestGuard],
+    data: {
+      title: 'Reset Password'
+    }
+  },
+  {
+    path: 'confirm-email',
+    loadComponent: () => import('./views/pages/confirm-email/confirm-email.component').then(m => m.ConfirmEmailComponent),
+    canActivate: [guestGuard],
+    data: {
+      title: 'Confirm Email'
+    }
+  },
+  {
+    path: 'resend-confirmation',
+    loadComponent: () => import('./views/pages/resend-confirmation/resend-confirmation.component').then(m => m.ResendConfirmationComponent),
+    canActivate: [guestGuard],
+    data: {
+      title: 'Resend Confirmation'
     }
   },
   { path: '**', redirectTo: 'dashboard' }

@@ -1,0 +1,48 @@
+<c-row>
+  <c-col md="8" lg="6">
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong>Request Email Change</strong>
+      </c-card-header>
+      <c-card-body>
+        <form cForm [formGroup]="requestForm" (ngSubmit)="submitRequest()">
+          @if (errorMessage) {
+            <c-alert color="danger">{{ errorMessage }}</c-alert>
+          }
+          @if (successMessage) {
+            <c-alert color="success">{{ successMessage }}</c-alert>
+          }
+          <div class="mb-3">
+            <label class="form-label">New Email</label>
+            <input cFormControl type="email" formControlName="newEmail" />
+          </div>
+          <button cButton color="primary" type="submit" [disabled]="requesting">
+            {{ requesting ? 'Sending...' : 'Request Change' }}
+          </button>
+        </form>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col md="8" lg="6">
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong>Confirm Email Change</strong>
+      </c-card-header>
+      <c-card-body>
+        <form cForm [formGroup]="confirmForm" (ngSubmit)="submitConfirm()">
+          <div class="mb-3">
+            <label class="form-label">New Email</label>
+            <input cFormControl type="email" formControlName="newEmail" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirmation Code</label>
+            <input cFormControl type="text" formControlName="code" />
+          </div>
+          <button cButton color="primary" type="submit" [disabled]="confirming">
+            {{ confirming ? 'Confirming...' : 'Confirm Change' }}
+          </button>
+        </form>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>

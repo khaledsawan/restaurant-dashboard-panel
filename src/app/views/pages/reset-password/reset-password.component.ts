@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, take } from 'rxjs';
-import { IconDirective } from '@coreui/icons-angular';
+
 import {
   AlertComponent,
   ButtonDirective,
@@ -16,19 +16,34 @@ import {
   InputGroupTextDirective,
   RowComponent
 } from '@coreui/angular';
+import { IconDirective } from '@coreui/icons-angular';
 import { AuthFacade } from '../../../core/auth/auth.facade';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  imports: [ContainerComponent, RowComponent, ColComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, ReactiveFormsModule, AlertComponent, RouterLink]
+  selector: 'app-reset-password',
+  templateUrl: './reset-password.component.html',
+  imports: [
+    ContainerComponent,
+    RowComponent,
+    ColComponent,
+    CardComponent,
+    CardBodyComponent,
+    FormDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    IconDirective,
+    FormControlDirective,
+    ButtonDirective,
+    ReactiveFormsModule,
+    AlertComponent,
+    RouterLink
+  ]
 })
-export class RegisterComponent {
+export class ResetPasswordComponent {
   readonly form = this.fb.group({
-    firstName: this.fb.control(''),
-    lastName: this.fb.control(''),
     email: this.fb.control('', { validators: [Validators.required, Validators.email] }),
-    password: this.fb.control('', { validators: [Validators.required, Validators.minLength(6)] })
+    code: this.fb.control('', { validators: [Validators.required] }),
+    newPassword: this.fb.control('', { validators: [Validators.required, Validators.minLength(6)] })
   });
 
   submitting = false;
@@ -38,8 +53,18 @@ export class RegisterComponent {
   constructor(
     private readonly fb: NonNullableFormBuilder,
     private readonly authFacade: AuthFacade,
-    private readonly router: Router
-  ) {}
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
+  ) {
+    const email = this.route.snapshot.queryParamMap.get('email');
+    const code = this.route.snapshot.queryParamMap.get('code');
+    if (email || code) {
+      this.form.patchValue({
+        email: email ?? '',
+        code: code ?? ''
+      });
+    }
+  }
 
   submit(): void {
     if (this.form.invalid || this.submitting) {
@@ -52,20 +77,20 @@ export class RegisterComponent {
     this.successMessage = '';
 
     this.authFacade
-      .register(this.form.getRawValue())
+      .resetPassword(this.form.getRawValue())
       .pipe(
         take(1),
         finalize(() => (this.submitting = false))
       )
       .subscribe({
         next: () => {
-          this.successMessage = 'Registration successful. Please log in.';
+          this.successMessage = 'Password reset successful. Please log in.';
           setTimeout(() => {
             void this.router.navigate(['/login']);
           }, 800);
         },
         error: (error: { error?: { detail?: string; title?: string } }) => {
-          this.errorMessage = error.error?.detail || error.error?.title || 'Registration failed.';
+          this.errorMessage = error.error?.detail || error.error?.title || 'Reset failed.';
         }
       });
   }

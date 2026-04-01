@@ -38,6 +38,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: (authSession: AuthSessionService) =>
         new Configuration({
           basePath: API_BASE_URL,
+          withCredentials: true,
           credentials: {
             Bearer: () => authSession.getAccessToken() ?? undefined
           }

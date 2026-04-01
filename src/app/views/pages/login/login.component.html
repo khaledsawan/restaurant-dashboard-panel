@@ -8,8 +8,8 @@
               <form cForm [formGroup]="form" (ngSubmit)="submit()">
                 <h1>Login</h1>
                 <p class="text-body-secondary">Sign In to your account</p>
-                @if (errorMessage) {
-                  <c-alert color="danger">{{ errorMessage }}</c-alert>
+                @if (errorMessage()) {
+                  <c-alert color="danger">{{ errorMessage() }}</c-alert>
                 }
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
@@ -31,14 +31,14 @@
                 </c-input-group>
                 <c-row>
                   <c-col xs="6">
-                    <button cButton class="px-4" color="primary" type="submit" [disabled]="submitting">
-                      {{ submitting ? 'Signing in...' : 'Login' }}
+                    <button cButton class="px-4" color="primary" type="submit" [disabled]="submitting()">
+                      {{ submitting() ? 'Signing in...' : 'Login' }}
                     </button>
                   </c-col>
                   <c-col class="text-end" xs="6">
-                    <button cButton class="px-0" color="link" type="button">
+                    <a cButton class="px-0" color="link" routerLink="/forgot-password">
                       Forgot password?
-                    </button>
+                    </a>
                   </c-col>
                 </c-row>
               </form>

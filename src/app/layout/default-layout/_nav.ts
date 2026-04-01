@@ -16,6 +16,37 @@ export const navItems: INavData[] = [
     iconComponent: { name: 'cilBasket' }
   },
   {
+    name: 'Admin Users',
+    url: '/admin-users',
+    iconComponent: { name: 'cilUser' }
+  },
+  {
+    name: 'Account',
+    iconComponent: { name: 'cilUser' },
+    children: [
+      {
+        name: 'Profile',
+        url: '/account/profile',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Change Password',
+        url: '/account/change-password',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Change Email',
+        url: '/account/change-email',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Delete Account',
+        url: '/account/delete-account',
+        icon: 'nav-icon-bullet'
+      }
+    ]
+  },
+  {
     title: true,
     name: 'Theme'
   },

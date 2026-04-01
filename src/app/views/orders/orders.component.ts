@@ -1,6 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { finalize } from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { finalize, take } from 'rxjs';
 
 import {
   AlertComponent,
@@ -41,6 +41,8 @@ export class OrdersComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   constructor(private readonly ordersFacade: OrdersFacade) {}
 
   ngOnInit(): void {
@@ -53,13 +55,20 @@ export class OrdersComponent implements OnInit {
 
     this.ordersFacade
       .getActiveOrders()
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(
+        take(1),
+        finalize(() => (this.loading = false))
+      )
       .subscribe({
         next: (orders) => {
+          this.loading = false;
           this.orders = orders;
+          this.changeDetector.detectChanges();
         },
         error: () => {
+          this.loading = false;
           this.errorMessage = 'Failed to load orders. Please try again.';
+          this.changeDetector.detectChanges();
         }
       });
   }

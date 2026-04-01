@@ -24,7 +24,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  imports: [AsyncPipe,ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, ReactiveFormsModule, RouterLink, AlertComponent]
+  imports: [ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, ReactiveFormsModule, RouterLink, AlertComponent]
 })
 export class LoginComponent {
   readonly form = this.fb.nonNullable.group({
